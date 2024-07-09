@@ -21,11 +21,18 @@ using namespace Gdiplus;
 using namespace std;
 
 ULONG_PTR gdiplusToken;
+std::wstring GetExecutablePath() {
+    wchar_t buffer[MAX_PATH];
+    GetModuleFileName(NULL, buffer, MAX_PATH);
+    std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
+    return std::wstring(buffer).substr(0, pos);
+}
 
 void AddToStartup() {
     HKEY hKey;
     const wchar_t* czStartName = L"EmployeeMonitorClient";
-    const wchar_t* czExePath = L"F:\\Работа\\EmployeeMonitorClient\\x64\\Debug\\EmployeeMonitorClient.exe";
+    std::wstring exePath = GetExecutablePath() + L"\\..\\EmployeeMonitorClient\\x64\\Debug\\EmployeeMonitorClient.exe";
+    const wchar_t* czExePath = exePath.c_str();
 
     LONG lnRes = RegOpenKeyEx(HKEY_CURRENT_USER,
         L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
@@ -211,7 +218,7 @@ void MonitorAndSendData() {
 
             SendDataToServer(data, screenshotBuffer);
         }
-        this_thread::sleep_for(chrono::minutes(15)); // Отправка данных каждые 15 минут
+        this_thread::sleep_for(chrono::minutes(15)); // Отправка данных каждые 15 минутц
     }
 }
 
